@@ -67,6 +67,9 @@ int main()
 
 		buttonrpc::value_t<void> xx = client.call<void>("foo_7", 666);
 		buttont_assert(!xx.valid());
+
+
+		break;
 #ifdef _WIN32
 		Sleep(1000);
 #else

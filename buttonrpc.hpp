@@ -196,10 +196,18 @@ private:
 	template<typename R, typename... Params>
 	void callproxy_(std::function<R(Params... ps)> func, Serializer* pr, const char* data, int len) {
 		
+		//Params...   模板参数包
+		//类型定义
+		//std::decay 去掉参数的特殊修饰符  如const & 等
 		using args_type = std::tuple<typename std::decay<Params>::type...>;
 
 		Serializer ds(StreamBuffer(data, len));
-		constexpr auto N = std::tuple_size<typename std::decay<args_type>::type>::value;
+		//std::tuple_size<T>::value  返回tuple的个数  
+		// constexpr 是常量修饰符
+		constexpr int N = std::tuple_size<typename std::decay<args_type>::type>::value;
+
+		//std::make_index_sequence
+		//实现编译期的整数序列，如下例make_index_sequence<3>()会使fun函数的模板参数: int... N 推演为：0，1，2序列 
 		args_type args = ds.get_tuple < args_type > (std::make_index_sequence<N>{});
 
 		typename type_xx<R>::type r = call_helper<R>(func, args);
@@ -233,7 +241,9 @@ inline buttonrpc::~buttonrpc(){
 inline void buttonrpc::as_client( std::string ip, int port )
 {
 	m_role = RPC_CLIENT;
-	m_socket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>(new zmq::socket_t(m_context, ZMQ_REQ), [](zmq::socket_t* sock){ sock->close(); delete sock; sock =nullptr;});
+	m_socket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>
+		(new zmq::socket_t(m_context, ZMQ_REQ), [](zmq::socket_t* sock){ sock->close(); delete sock; sock =nullptr;});
+
 	ostringstream os;
 	os << "tcp://" << ip << ":" << port;
 	m_socket->connect (os.str());
@@ -242,7 +252,15 @@ inline void buttonrpc::as_client( std::string ip, int port )
 inline void buttonrpc::as_server( int port )
 {
 	m_role = RPC_SERVER;
-	m_socket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>(new zmq::socket_t(m_context, ZMQ_REP), [](zmq::socket_t* sock){ sock->close(); delete sock; sock =nullptr;});
+	m_socket = std::unique_ptr<zmq::socket_t, std::function<void(zmq::socket_t*)>>
+		(new zmq::socket_t(m_context, ZMQ_REP), 
+			[](zmq::socket_t* sock){ 
+				sock->close(); 
+				delete sock; 
+				sock =nullptr;
+		});
+
+
 	ostringstream os;
 	os << "tcp://*:" << port;
 	m_socket->bind (os.str());
@@ -280,6 +298,7 @@ inline void buttonrpc::run()
 
 		std::string funname;
 		ds >> funname;
+		std::cout << "call " << funname << std::endl;
 		Serializer* r = call_(funname, ds.current(), ds.size()- funname.size());
 
 		zmq::message_t retmsg (r->size());

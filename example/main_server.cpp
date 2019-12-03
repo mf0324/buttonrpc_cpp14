@@ -14,15 +14,17 @@
 
 // 测试例子
 void foo_1() {
-	
+	std::cout << "foo_1" << std::endl;
 }
 
 void foo_2(int arg1) {
 	buttont_assert(arg1 == 10);
+	std::cout << "foo_2" << std::endl;
 }
 
 int foo_3(int arg1) {
 	buttont_assert(arg1 == 10);
+	std::cout << "foo_3" << std::endl;
 	return arg1 * arg1;
 }
 
@@ -31,6 +33,9 @@ int foo_4(int arg1, std::string arg2, int arg3, float arg4) {
 	buttont_assert(arg2 == "buttonrpc");
 	buttont_assert(arg3 == 100);
 	buttont_assert((arg4 > 10.0) && (arg4 < 11.0));
+	std::cout << arg2 << std::endl;
+	std::cout << "foo_4" << std::endl;
+
 	return arg1 * arg3;
 }
 
@@ -60,6 +65,12 @@ struct PersonInfo
 		out << d.age << d.name << d.height;
 		return out;
 	}
+
+	friend ostream& operator << (ostream& os, const PersonInfo &d)
+	{
+		os << "age " << d.age << "  name:" << d.name << " height:" << d.height;
+		return os;
+	}
 };
 
 PersonInfo foo_5(PersonInfo d,  int weigth)
@@ -72,6 +83,8 @@ PersonInfo foo_5(PersonInfo d,  int weigth)
 	ret.age = d.age + 10;
 	ret.name = d.name + " is good";
 	ret.height = d.height + 10;
+
+	std::cout << "foo_5" << std::endl;
 	return ret;
 }
 

@@ -107,12 +107,20 @@ public:
 	template<typename Tuple, std::size_t Id>
 	void getv(Serializer& ds, Tuple& t) {
 		ds >> std::get<Id>(t);
+		std::cout << Id << "  " << std::get<Id>(t) << std::endl;
 	}
+
+	template<typename Tuple>
+	int getSize() {
+		return std::tuple_size<Tuple>::value;
+	};
 
 	template<typename Tuple, std::size_t... I>
 	Tuple get_tuple(std::index_sequence<I...>) {
 		Tuple t;
-		initializer_list<int>{((getv<Tuple, I>(*this, t)), 0)...};
+		//getv<Tuple, I>(*this, t);
+		initializer_list<int>{((getv<Tuple, I>(*this, t)), 1)...};
+		//std::cout << "" << t<Tuple>.getSize();
 		return t;
 	}
 
